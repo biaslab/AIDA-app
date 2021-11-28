@@ -201,4 +201,4 @@ route("/") do
     ui(stipple_model) |> html
 end
 
-up()
+up(async = false)
