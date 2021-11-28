@@ -7,6 +7,6 @@ dvc get https://github.com/biaslab/AIDA-data sound
 # Docker build
 
 ```
-docker build -t aida
+docker build --ssh default -t aida .
 ```
 
