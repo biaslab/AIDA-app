@@ -2,7 +2,9 @@
 
 [[AIDA]]
 deps = ["AbstractGPs", "Colors", "Conda", "Dagger", "Distributions", "DistributionsAD", "Flux", "GaussianProcesses", "GraphPPL", "JLD", "JLD2", "LaTeXStrings", "LinearAlgebra", "LoopVectorization", "OhMyREPL", "Optim", "PGFPlots", "PGFPlotsX", "Parameters", "Plots", "PolynomialRoots", "ProgressMeter", "PyCall", "ReactiveMP", "Rocket", "SpecialFunctions", "StatsFuns", "WAV"]
-path = "/Users/apodusenko/.julia/dev/AIDA"
+git-tree-sha1 = "cd42426329334fb6763dde10ac580f4704d2ef79"
+repo-rev = "master"
+repo-url = "git@github.com:biaslab/AIDA.git"
 uuid = "02ab3c64-7f6e-4624-92b1-4056b28faae1"
 version = "0.1.0"
 
