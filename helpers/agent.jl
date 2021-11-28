@@ -1,6 +1,4 @@
 # load helper functions
-include("../agent/utils.jl")
-
 mutable struct ContextMemory
     name    :: String
     params  :: Tuple

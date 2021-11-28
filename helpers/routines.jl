@@ -1,5 +1,5 @@
 function reset_routine!(model, agent)
-    @show "TFW"
+    @show "check1"
     model.context[] = "synthetic"
     model.ha_pairs[] = ha_pairs_init
     model.btntoggle[] = "synthetic"
@@ -11,7 +11,7 @@ function reset_routine!(model, agent)
     model.agent_plotdata[] = pl_agent_hm(agent)
 
     model.classifier_plotdata[] = pl_context_fe(context_classifier, ha_pairs_init[1]["context"], "synthetic")
-    @show "WTFWTF"
+    @show "check2"
 end
 
 function context_classifier_routine(model)
@@ -41,6 +41,6 @@ function btntoggle_routine(model, toggle, agent)
     agent.current_gain = reshape(collect(new_X), size(agent.current_gain))
     agent.current_hm = new_grid
     hm_plotdata = pl_agent_hm(agent)
-    # @show model.context[]
+    @show model.context[]
     context, ha_pairs, hm_plotdata
 end
