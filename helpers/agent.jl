@@ -1,3 +1,5 @@
+using Optim
+
 # load helper functions
 mutable struct ContextMemory
     name    :: String
