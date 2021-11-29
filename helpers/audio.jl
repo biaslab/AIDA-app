@@ -1,9 +1,9 @@
 # Meta for audio processing
-INPUT_PATH = "sound/speech/"
-OUTPUT_PATH = "sound/separated_jld/speech/"
+INPUT_PATH = "public/sound/speech/"
+OUTPUT_PATH = "public/sound/separated_jld/speech/"
 
-INPUT_PATH_SIN = "sound/speech/sin"
-OUTPUT_PATH_SIN = "sound/separated_jld/speech/sin"
+INPUT_PATH_SIN = "public/sound/speech/sin"
+OUTPUT_PATH_SIN = "public/sound/separated_jld/speech/sin"
 
 SEGLEN = 80
 

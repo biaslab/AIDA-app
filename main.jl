@@ -191,8 +191,7 @@ function ui(stipple_model)
                         StipplePlotly.plot(:classifier_plotdata, layout = :fe_layout, config = :config)
                     ])
             ])
-            Stipple.center([img(src = stipple_model.logourl[], style = "height: 500px; max-width: 700px")
-            ])
+            Stipple.center([img(src = stipple_model.logourl[], style = "height: 500px; max-width: 700px")])
         ])
 end
 
@@ -201,4 +200,4 @@ route("/") do
     ui(stipple_model) |> html
 end
 
-up(async = false)
+up(8000, "0.0.0.0", async = true)
