@@ -116,7 +116,8 @@ Base.@kwdef mutable struct Model <: ReactiveModel
 
 end
 
-const stipple_model = Stipple.init(Model(), transport = Genie.WebThreads)
+# const stipple_model = Stipple.init(Model(), transport = Genie.WebThreads)
+const stipple_model = Stipple.init(Model())
 
 on(_ -> stipple_model.classifier_plotdata[] = context_classifier_routine(stipple_model), stipple_model.context)
 on(i -> (stipple_model.classifier_plotdata[], stipple_model.ha_plotdata[], stipple_model.context[]) = update_index_routine(stipple_model, mod_index(i, stipple_model.ha_pairs[]), agent), stipple_model.index)
@@ -201,4 +202,4 @@ route("/") do
     ui(stipple_model) |> html
 end
 
-up(async = false)
+up(async = true)
