@@ -12,7 +12,7 @@ function reset_routine(model, agent)
 
     model.classifier_plotdata[] = pl_context_fe(context_classifier, ha_pairs_init[1]["context"], "synthetic")
     @show "check2"
-    agent, model
+    model, agent
 end
 
 function context_classifier_routine(model)

@@ -1,4 +1,5 @@
 using Stipple, StippleUI, StipplePlotly
+using LaTeXStrings
 using WAV
 using JLD
 using AIDA
@@ -65,10 +66,10 @@ end
 # Create layout for plots
 HA_layout = PlotLayout(plot_bgcolor = "white", yaxis = [PlotLayoutAxis(xy = "y", index = 1, ticks = "outside", showline = true, zeroline = false, title = "amplitude")])
 HM_layout = PlotLayout(plot_bgcolor="white",
-                       yaxis = [PlotLayoutAxis(xy = "y", index = 1, ticks = "outside", showline = true, zeroline = false, title = "g2")],
-                       xaxis = [PlotLayoutAxis(xy = "x", index = 1, ticks = "outside", showline = true, zeroline = false, title = "g1")])
+                       yaxis = [PlotLayoutAxis(xy = "y", index = 1, ticks = "outside", showline = true, zeroline = false, title = L"$u_{nk}$")],
+                       xaxis = [PlotLayoutAxis(xy = "x", index = 1, ticks = "outside", showline = true, zeroline = false, title = L"$u_{sk}$")])
 FE_layout = PlotLayout(plot_bgcolor="white",
-                        yaxis = [PlotLayoutAxis(xy = "y", index = 1, ticks = "outside", showline = true, zeroline = false, title = "FE [nats]")])
+                        yaxis = [PlotLayoutAxis(xy = "y", index = 1, ticks = "outside", showline = true, zeroline = false, title = "BFE [nats]")])
 
 
 ha_pairs_init = switch_ha_pairs(true)
