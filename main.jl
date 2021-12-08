@@ -137,7 +137,7 @@ on(_ -> stipple_model.agent_plotdata[] = optimize_routine(agent, stipple_model),
 
 on(i -> (stipple_model.context[], stipple_model.ha_pairs[], stipple_model.agent_plotdata[]) = btntoggle_routine(stipple_model, i, agent), stipple_model.btntoggle)
 
-on(_ -> reset_routine!(stipple_model, agent), stipple_model.reset)
+on((stipple_model, agent) -> reset_routine(stipple_model, agent), stipple_model.reset)
 # creating Toggle
 btn_opt(label::AbstractString, value::AbstractString) = "{label: '$label', value: '$value'}"
 btn_opt(labels::Vector, values::Vector) = "[ $(join( btn_opt.(labels, values), ",\n  ")) ]"

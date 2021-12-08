@@ -20,7 +20,7 @@ mutable struct EFEAgent
             push!(cmems, ContextMemory(name, params, Dict("X" => missing, "y" => [])))
         end
         grid = Iterators.product(LinRange(0, 2, nsteps), LinRange(0, 2, nsteps))
-        new(cmems, rand(ndims, npoints), 1e2*ones(nsteps, nsteps), grid)
+        new(cmems, reshape([1.0 2.0], (2, 1)), 1e2*ones(nsteps, nsteps), grid)
     end
 end
 

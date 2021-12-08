@@ -1,4 +1,4 @@
-function reset_routine!(model, agent)
+function reset_routine(model, agent)
     @show "check1"
     model.context[] = "synthetic"
     model.ha_pairs[] = ha_pairs_init
@@ -12,6 +12,7 @@ function reset_routine!(model, agent)
 
     model.classifier_plotdata[] = pl_context_fe(context_classifier, ha_pairs_init[1]["context"], "synthetic")
     @show "check2"
+    agent, model
 end
 
 function context_classifier_routine(model)
