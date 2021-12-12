@@ -14,10 +14,10 @@ end
 
 function switch_ha_pairs(synthetic=true)
     if synthetic
-        inputs, outputs = map(x -> get_ha_files_sin(x), [INPUT_PATH_SIN, OUTPUT_PATH_SIN])
+        inputs, outputs = map(x -> get_ha_files_synth(x), [INPUT_PATH, OUTPUT_PATH])
         ha_pairs = map_input_output(inputs, outputs)
     else
-        inputs, outputs = map(x -> get_ha_files(x), [INPUT_PATH, OUTPUT_PATH])
+        inputs, outputs = map(x -> get_ha_files_real(x), [INPUT_PATH, OUTPUT_PATH])
         ha_pairs = map_input_output(inputs, outputs)
     end
     return ha_pairs

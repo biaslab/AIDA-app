@@ -16,7 +16,7 @@ agent = EFEAgent(CONTEXTS, 20, ndims, 1)
 
 ## Initialize context inference
 include("helpers/context.jl")
-context_classifier = ContextClassifier([lar_inference, lar_inference], PRIORS, 50)
+context_classifier = ContextClassifier([lar_inference, lar_inference], PRIORS, 5)
 
 include("helpers/utils.jl")
 include("helpers/routines.jl")
@@ -40,7 +40,7 @@ end
 
 #== ==#
 function pl_context_fe(classifier::ContextClassifier, segment, real_context)
-    if real_context != "synthetic"
+    if real_context in REAL_C
         fes = infer_context(classifier, segment)
         return [PlotData(y=fes[1], plot = StipplePlotly.Charts.PLOT_TYPE_SCATTER, name="Babble model FE"),
                 PlotData(y=fes[2], plot = StipplePlotly.Charts.PLOT_TYPE_SCATTER, name="Train model FE")]
@@ -81,17 +81,17 @@ Base.@kwdef mutable struct Model <: ReactiveModel
 
     index::R{Integer} = 1
 
-    context::R{String} = "synthetic"
+    context::R{String} = "sin"
 
-    play_in::R{Bool} = false
+    play_in::R{Bool}     = false
     play_speech::R{Bool} = false
-    play_noise::R{Bool} = false
+    play_noise::R{Bool}  = false
     play_output::R{Bool} = false
 
-    like::R{Bool} = false
+    like::R{Bool}    = false
     dislike::R{Bool} = false
 
-    reset::R{Bool} = false
+    reset_env::R{Bool} = false
 
     optimize::R{Bool} = false
 
@@ -112,7 +112,7 @@ Base.@kwdef mutable struct Model <: ReactiveModel
     agent_plotdata::R{PlotData} = pl_agent_hm(agent)
     hm_layout::R{PlotLayout} = HM_layout
 
-    classifier_plotdata::R{Vector{PlotData}} = pl_context_fe(context_classifier, ha_pairs_init[1]["context"], "synthetic")
+    classifier_plotdata::R{Vector{PlotData}} = pl_context_fe(context_classifier, zeros(SEGLEN), "sin")
     fe_layout::R{PlotLayout} = FE_layout
 
 end
@@ -120,8 +120,10 @@ end
 # const stipple_model = Stipple.init(Model(), transport = Genie.WebThreads)
 const stipple_model = Stipple.init(Model())
 
-on(_ -> stipple_model.classifier_plotdata[] = context_classifier_routine(stipple_model), stipple_model.context)
-on(i -> (stipple_model.classifier_plotdata[], stipple_model.ha_plotdata[], stipple_model.context[]) = update_index_routine(stipple_model, mod_index(i, stipple_model.ha_pairs[]), agent), stipple_model.index)
+# on(_ -> stipple_model.classifier_plotdata[] = context_classifier_routine(stipple_model), stipple_model.context)
+# on(_ -> stipple_model.agent_plotdata[] = heatmap_routine(stipple_model, agent), stipple_model.context)
+on(_ -> (stipple_model.ha_plotdata[], stipple_model.agent_plotdata[], stipple_model.classifier_plotdata[]) = context_change_routine(stipple_model, agent), stipple_model.context)
+on(i -> (stipple_model.classifier_plotdata[], stipple_model.ha_plotdata[], stipple_model.context[], stipple_model.agent_plotdata[]) = update_index_routine(stipple_model, mod_index(i, stipple_model.ha_pairs[]), agent), stipple_model.index)
 on(pairs -> stipple_model.ha_plotdata[] = update_plots(mod_index(stipple_model.index[], pairs), pairs, agent), stipple_model.ha_pairs)
 
 on(_ -> playsound("input", stipple_model.ha_pairs[], nothing), stipple_model.play_in)
@@ -138,7 +140,8 @@ on(_ -> stipple_model.agent_plotdata[] = optimize_routine(agent, stipple_model),
 
 on(i -> (stipple_model.context[], stipple_model.ha_pairs[], stipple_model.agent_plotdata[]) = btntoggle_routine(stipple_model, i, agent), stipple_model.btntoggle)
 
-on((stipple_model, agent) -> reset_routine(stipple_model, agent), stipple_model.reset)
+on(_ -> reset_routine!(stipple_model, agent), stipple_model.reset_env)
+
 # creating Toggle
 btn_opt(label::AbstractString, value::AbstractString) = "{label: '$label', value: '$value'}"
 btn_opt(labels::Vector, values::Vector) = "[ $(join( btn_opt.(labels, values), ",\n  ")) ]"
@@ -158,7 +161,7 @@ function ui(stipple_model)
                             toggle__color="orange",
                             :multiple,
                             options=@data(btn_opt(["Synthetic", "Real"], ["synthetic", "real"])))
-                    btn("reset", @click("reset = !reset"), color = "red", type = "submit", wrap = StippleUI.NO_WRAPPER)
+                    btn("reset", @click("reset_env = !reset_env"), color = "red", type = "submit", wrap = StippleUI.NO_WRAPPER)
                     
                     ])
                 ])
@@ -193,10 +196,13 @@ function ui(stipple_model)
                         StipplePlotly.plot(:classifier_plotdata, layout = :fe_layout, config = :config)
                     ])
             ])
-            Stipple.center([img(src = stipple_model.logourl[], style = "height: 500px; max-width: 700px")
+            # Stipple.center([audio( "source src = sound/speech/clean/sp01.wav", "type = audio/x-wav", "controls"),])
+            
+            Stipple.center([img(src = stipple_model.logourl[], style = "height: 500px; max-width: 700px"),
             ])
         ])
 end
+
 
 #== server ==#
 route("/") do

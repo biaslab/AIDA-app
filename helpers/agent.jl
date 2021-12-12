@@ -42,7 +42,7 @@ function get_new_proposal(agent::EFEAgent, context::String)
     if ismissing(X)
         ndims = size(agent.current_gain, 1)
         nsteps = size(agent.current_hm, 1)
-        return rand(ndims, 1), 1e2*ones(nsteps, nsteps)
+        return reshape([1.0 2.0], (2, 1)), 1e2*ones(nsteps, nsteps)
     end
     cur_X = agent.cmems[id].dataset["X"][:, end]
     # Compute the EFE grid

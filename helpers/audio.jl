@@ -3,27 +3,39 @@ INPUT_PATH = "public/sound/speech/"
 OUTPUT_PATH = "public/sound/separated_jld/speech/"
 
 INPUT_PATH_SIN = "public/sound/speech/sin"
-OUTPUT_PATH_SIN = "public/sound/separated_jld/speech/sin"
+OUTPUT_PATH_SIN = "public/sound/separated_jld/speech/"
 
 SEGLEN = 80
 
 SNR = "5dB"
-CONTEXTS = ["babble", "train", "synthetic"]
+REAL_C = ["babble", "train"]
+SYNTH_C = ["sin", "drill"]
+CONTEXTS = [REAL_C; SYNTH_C]
 FS = 8000
 
 
 ## helper functions
-function get_ha_files(PATH)
-    files = map(x -> readdir(PATH * x * "/" * SNR * "/", join = true), filter(x -> x != "synthetic", CONTEXTS))
+function get_ha_files_real(PATH)
+    files = map(x -> readdir(PATH * x * "/" * SNR * "/", join = true), filter(x -> x in REAL_C, CONTEXTS))
+    files = collect(Iterators.flatten(files))
+    type = files[1][end-2:end]
+    shuffle(filter!(x -> contains(x, "."*type), files))
+end
+
+function get_ha_files_synth(PATH)
+    files = map(x -> readdir(PATH * x * "/", join = true), filter(x -> x in SYNTH_C, CONTEXTS))
     files = collect(Iterators.flatten(files))
     type = files[1][end-2:end]
     filter!(x -> contains(x, "."*type), files)
 end
 
-function get_ha_files_sin(PATH)
-    files = readdir(PATH, join = true)
-    type = files[1][end-2:end]
-    filter!(x -> contains(x, "."*type), files)
+function extract_index(output, contexts)
+    for context in contexts
+        if occursin(context, output)
+            return context
+        end
+    end
+    return error("invalid context file")
 end
 
 function map_input_output(inputs, outputs, contexts=CONTEXTS)
@@ -36,7 +48,7 @@ function map_input_output(inputs, outputs, contexts=CONTEXTS)
                                   "speech" => get_signal(out_dict["rmz"], FS),
                                   "noise" => get_signal(out_dict["rmx"], FS), 
                                   "output" => get_signal(out_dict["rmz"], FS) + get_signal(out_dict["rmx"], FS),
-                                  "context" => occursin(CONTEXTS[1], input) ? CONTEXTS[1] : (occursin(CONTEXTS[2], input) ? CONTEXTS[2] : CONTEXTS[3])))
+                                  "context" => extract_index(output, contexts)))
                                   
             end
         end
