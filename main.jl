@@ -16,7 +16,7 @@ agent = EFEAgent(CONTEXTS, 20, ndims, 1)
 
 ## Initialize context inference
 include("helpers/context.jl")
-context_classifier = ContextClassifier([lar_inference, lar_inference], PRIORS, 5)
+context_classifier = ContextClassifier([lar_inference, lar_inference], PRIORS_SYNTH, 2)
 
 include("helpers/utils.jl")
 include("helpers/routines.jl")
@@ -40,11 +40,17 @@ end
 #== ==#
 function pl_context_fe(classifier::ContextClassifier, segment, real_context)
     if real_context in REAL_C
+        classifier.priors = PRIORS
+        classifier.vmpits = 5
         fes = infer_context(classifier, segment)
-        return [PlotData(y=fes[1], plot = StipplePlotly.Charts.PLOT_TYPE_SCATTER, name="Babble model FE"),
-                PlotData(y=fes[2], plot = StipplePlotly.Charts.PLOT_TYPE_SCATTER, name="Train model FE")]
+        return [PlotData(y=fes[1], plot = StipplePlotly.Charts.PLOT_TYPE_SCATTER, name="Babble"),
+                PlotData(y=fes[2], plot = StipplePlotly.Charts.PLOT_TYPE_SCATTER, name="Train")]
     else
-        return [PlotData(y=zeros(classifier.vmpits), plot = StipplePlotly.Charts.PLOT_TYPE_SCATTER)]
+        classifier.priors = PRIORS_SYNTH
+        classifier.vmpits = 1
+        fes = infer_context(classifier, segment)
+        return [PlotData(y=first(fes[1]) * ones(5), plot = StipplePlotly.Charts.PLOT_TYPE_SCATTER, name="SIN"),
+                PlotData(y=first(fes[2]) * ones(5), plot = StipplePlotly.Charts.PLOT_TYPE_SCATTER, name="DRILL")]
     end
 end
 
@@ -65,8 +71,8 @@ end
 # Create layout for plots
 HA_layout = PlotLayout(plot_bgcolor = "white", yaxis = [PlotLayoutAxis(xy = "y", index = 1, ticks = "outside", showline = true, zeroline = false, title = "amplitude")])
 HM_layout = PlotLayout(plot_bgcolor="white",
-                       yaxis = [PlotLayoutAxis(xy = "y", index = 1, ticks = "outside", showline = true, zeroline = false, title = L"$u_{nk}$")],
-                       xaxis = [PlotLayoutAxis(xy = "x", index = 1, ticks = "outside", showline = true, zeroline = false, title = L"$u_{sk}$")])
+                       yaxis = [PlotLayoutAxis(xy = "y", index = 1, ticks = "outside", showline = true, zeroline = false, title = "noise gain")],
+                       xaxis = [PlotLayoutAxis(xy = "x", index = 1, ticks = "outside", showline = true, zeroline = false, title = "speech gain")])
 FE_layout = PlotLayout(plot_bgcolor="white",
                         yaxis = [PlotLayoutAxis(xy = "y", index = 1, ticks = "outside", showline = true, zeroline = false, title = "BFE [nats]")])
 
@@ -94,7 +100,7 @@ Base.@kwdef mutable struct Model <: ReactiveModel
 
     optimize::R{Bool} = false
 
-    logourl::R{String}    = "img/logo.png"
+    logourl::R{String}    = "img/logo.svg"
     headerurl::R{String}  = "img/sound-waves.png"
     dislikeurl::R{String} = "img/dislike.png"
     likeurl::R{String}    = "img/like.png"
@@ -114,7 +120,7 @@ Base.@kwdef mutable struct Model <: ReactiveModel
     agent_plotdata::R{PlotData} = pl_agent_hm(agent)
     hm_layout::R{PlotLayout} = HM_layout
 
-    classifier_plotdata::R{Vector{PlotData}} = pl_context_fe(context_classifier, zeros(SEGLEN), "sin")
+    classifier_plotdata::R{Vector{PlotData}} = pl_context_fe(context_classifier, ha_pairs_init[1]["input"][1:SEGLEN], "sin")
     fe_layout::R{PlotLayout} = FE_layout
 
 end
@@ -161,7 +167,7 @@ function ui(stipple_model)
                  h3("Active Inference Design Agent")])
             row([cell(class = "st-module", [
                 h5("Environment") 
-                cell(class = "st-module", [
+                cell([
                     quasar(:btn__toggle, "", 
                             @bind("btntoggle"),
                             toggle__color="orange",
@@ -193,12 +199,12 @@ function ui(stipple_model)
                         )
             row([
                     cell(class="st-module", [
-                        h5("EFE Heatmap")
+                        h5("EFE Agent")
                         StipplePlotly.plot(:agent_plotdata, layout = :hm_layout, config = :config)
                     ])
 
                     cell(class="st-module", [
-                        h5("FE classifier")
+                        h5("Classifier")
                         StipplePlotly.plot(:classifier_plotdata, layout = :fe_layout, config = :config)
                     ])
             ])
