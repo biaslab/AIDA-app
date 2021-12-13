@@ -1,6 +1,6 @@
 function reset_routine!(model, agent)
     @show "check1"
-    model.context[] = "synthetic"
+    model.context[] = "sin"
     model.ha_pairs[] = ha_pairs_init
     model.btntoggle[] = "synthetic"
     @show agent
@@ -22,9 +22,9 @@ function update_index_routine(model, index, agent)
     segment = model.ha_pairs[][mod_index(model.index[], model.ha_pairs[])]["input"][1:SEGLEN]
     classifier_plotdata = pl_context_fe(context_classifier, segment, real_context)
 
-    hm_plotdata = pl_agent_hm(agent)
-    @show real_context
-    return classifier_plotdata, ha_plotdata, real_context, hm_plotdata
+    # hm_plotdata = pl_agent_hm(agent)
+    @show "no change"
+    return classifier_plotdata, ha_plotdata, real_context
 end
 
 function optimize_routine(agent, model)
@@ -47,12 +47,14 @@ end
 
 function context_change_routine(model, agent)
     real_context = model.context[]
+    @show real_context
     segment = model.ha_pairs[][mod_index(model.index[], model.ha_pairs[])]["input"][1:SEGLEN]
     fe_plotdata = pl_context_fe(context_classifier, segment, real_context)
 
     new_X, new_grid = get_new_proposal(agent, real_context)
     agent.current_gain = reshape(collect(new_X), size(agent.current_gain))
     agent.current_hm = new_grid
+    @show "hi"
     hm_plotdata = pl_agent_hm(agent)
 
     ha_plotdata = update_plots(mod_index(model.index[], model.ha_pairs[]), model.ha_pairs[], agent)

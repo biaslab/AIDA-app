@@ -34,7 +34,6 @@ end
 
 #== heatmap ==#
 function pl_agent_hm(agent)
-    @show agent.current_gain
     PlotData(x=agent.grid.iterators[1], y=agent.grid.iterators[2], z=agent.current_hm, plot = StipplePlotly.Charts.PLOT_TYPE_HEATMAP, name="heatmap")
 end
 
@@ -96,9 +95,12 @@ Base.@kwdef mutable struct Model <: ReactiveModel
     optimize::R{Bool} = false
 
     logourl::R{String}    = "img/logo.png"
+    headerurl::R{String}  = "img/sound-waves.png"
     dislikeurl::R{String} = "img/dislike.png"
     likeurl::R{String}    = "img/like.png"
     optimurl::R{String}   = "img/optim.png"
+
+    soundurl::R{String}   = "sound/speech/clean/sp01.wav"
 
     btntoggle::R{String} = "synthetic"
 
@@ -120,10 +122,12 @@ end
 # const stipple_model = Stipple.init(Model(), transport = Genie.WebThreads)
 const stipple_model = Stipple.init(Model())
 
-# on(_ -> stipple_model.classifier_plotdata[] = context_classifier_routine(stipple_model), stipple_model.context)
-# on(_ -> stipple_model.agent_plotdata[] = heatmap_routine(stipple_model, agent), stipple_model.context)
+on(i -> (stipple_model.classifier_plotdata[], stipple_model.ha_plotdata[], 
+         stipple_model.context[]) 
+    = update_index_routine(stipple_model, mod_index(i, stipple_model.ha_pairs[]), agent), stipple_model.index)
+
 on(_ -> (stipple_model.ha_plotdata[], stipple_model.agent_plotdata[], stipple_model.classifier_plotdata[]) = context_change_routine(stipple_model, agent), stipple_model.context)
-on(i -> (stipple_model.classifier_plotdata[], stipple_model.ha_plotdata[], stipple_model.context[], stipple_model.agent_plotdata[]) = update_index_routine(stipple_model, mod_index(i, stipple_model.ha_pairs[]), agent), stipple_model.index)
+
 on(pairs -> stipple_model.ha_plotdata[] = update_plots(mod_index(stipple_model.index[], pairs), pairs, agent), stipple_model.ha_pairs)
 
 on(_ -> playsound("input", stipple_model.ha_pairs[], nothing), stipple_model.play_in)
@@ -152,7 +156,9 @@ btn_opt(values::Vector) = btn_opt(values, values)
 function ui(stipple_model)
     dashboard(
         vm(stipple_model), class = "container", [
-            heading("Active Inference Design Agent", text_align="center")
+            # heading("Active Inference Design Agent", text_align="center")
+            row([img(src=stipple_model.headerurl[], style = "height: 60px; width: 70px")
+                 h3("Active Inference Design Agent")])
             row([cell(class = "st-module", [
                 h5("Environment") 
                 cell(class = "st-module", [
@@ -196,7 +202,6 @@ function ui(stipple_model)
                         StipplePlotly.plot(:classifier_plotdata, layout = :fe_layout, config = :config)
                     ])
             ])
-            # Stipple.center([audio( "source src = sound/speech/clean/sp01.wav", "type = audio/x-wav", "controls"),])
             
             Stipple.center([img(src = stipple_model.logourl[], style = "height: 500px; max-width: 700px"),
             ])
