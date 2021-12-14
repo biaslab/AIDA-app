@@ -105,9 +105,7 @@ Base.@kwdef mutable struct Model <: ReactiveModel
     dislikeurl::R{String} = "img/dislike.png"
     likeurl::R{String}    = "img/like.png"
     optimurl::R{String}   = "img/optim.png"
-
-    soundurl::R{String}   = "sound/speech/clean/sp01.wav"
-
+    
     btntoggle::R{String} = "synthetic"
 
     ha_pairs::R{Vector} = ha_pairs_init
@@ -213,6 +211,7 @@ function ui(stipple_model)
             ])
         ])
 end
+
 
 
 #== server ==#
