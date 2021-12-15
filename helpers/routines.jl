@@ -42,7 +42,7 @@ function update_index_routine(model, index, agent)
 
     # hm_plotdata = pl_agent_hm(agent)
     @show "no change"
-    return classifier_plotdata, ha_plotdata, real_context, audio_base_input, audio_base_speech, audio_base_noise, audio_base_output
+    return classifier_plotdata, ha_plotdata, audio_base_input, audio_base_speech, audio_base_noise, audio_base_output, real_context
 end
 
 function optimize_routine(agent, model)
@@ -74,6 +74,7 @@ function context_change_routine(model, agent)
     agent.current_gain = reshape(collect(new_X), size(agent.current_gain))
     agent.current_hm = new_grid
     @show "hi"
+    @show agent.current_gain
     hm_plotdata = pl_agent_hm(agent)
 
     ha_plotdata = update_plots(mod_index(model.index[], model.ha_pairs[]), model.ha_pairs[], agent)

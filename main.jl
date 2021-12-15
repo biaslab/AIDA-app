@@ -144,11 +144,11 @@ const stipple_model = Stipple.init(Model())
 # update if the index changes
 on(i -> (stipple_model.classifier_plotdata[], 
         stipple_model.ha_plotdata[],           
-        stipple_model.context[], 
         stipple_model.audio_base_input[],
         stipple_model.audio_base_speech[],
         stipple_model.audio_base_noise[],
-        stipple_model.audio_base_output[]) 
+        stipple_model.audio_base_output[],
+        stipple_model.context[])
     = update_index_routine(stipple_model, mod_index(i, stipple_model.ha_pairs[]), agent), stipple_model.index)
 
 # update if context changes
