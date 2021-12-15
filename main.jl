@@ -6,7 +6,9 @@ using AIDA
 using Colors
 using Images
 using Random
-
+using Compat: @compat
+using WAV
+using Base64
 include("helpers/audio.jl")
 
 ## Initialize agent
@@ -79,6 +81,32 @@ FE_layout = PlotLayout(plot_bgcolor="white",
 
 ha_pairs_init = switch_ha_pairs(true)
 
+# if sound refers to a file (such as the input speech)
+function create_audioplayer(sound)
+    return """
+        <audio controls style="width: 200px;">
+            <source src=$(sound) type="audio/wav">
+            Your browser does not support the audio element.
+        </audio> 
+    """
+end
+function create_audioplayer2(sound)
+    # create IO buffer
+    buf = IOBuffer()
+        
+    # write signal to buffer
+    wavwrite(sound["output"], buf; Fs=8000)
+
+    # encode the data stream
+    @compat data = base64encode(buf.data)
+
+    return """
+        <audio controls style="width: 200px;">
+            <source src="data:audio/wav;base64,$data">>
+            Your browser does not support the audio element.
+        </audio> 
+    """
+end
 #== reactive model ==#
 Base.@kwdef mutable struct Model <: ReactiveModel
 
@@ -121,6 +149,28 @@ Base.@kwdef mutable struct Model <: ReactiveModel
     classifier_plotdata::R{Vector{PlotData}} = pl_context_fe(context_classifier, ha_pairs_init[1]["input"][1:SEGLEN], "sin")
     fe_layout::R{PlotLayout} = FE_layout
 
+    audio_test::R{String} = """
+        <audio controls style="width: 200px;">
+            <source src="data:audio/wav;base64,1">>
+            Your browser does not support the audio element.
+        </audio> 
+    """
+
+end
+
+function audioplayer_output(sound)
+    # create IO buffer
+    buf = IOBuffer()
+    
+    # write signal to buffer
+    wavwrite(sound["output"], buf; Fs=8000)
+
+    # encode the data stream
+    @compat data = base64encode(buf.data)
+
+    return audio(
+        source(src="data:audio/wav;base64,$data")
+    )
 end
 
 # const stipple_model = Stipple.init(Model(), transport = Genie.WebThreads)
@@ -154,6 +204,17 @@ on(_ -> reset_routine!(stipple_model, agent), stipple_model.reset_env)
 btn_opt(label::AbstractString, value::AbstractString) = "{label: '$label', value: '$value'}"
 btn_opt(labels::Vector, values::Vector) = "[ $(join( btn_opt.(labels, values), ",\n  ")) ]"
 btn_opt(values::Vector) = btn_opt(values, values)
+
+
+# function audioplayer(fieldname::Symbol;
+#         wrap::Function = DEFAULT_WRAPPER,
+#         args...) :: String
+
+#     wrap() do 
+        
+#     end
+#     end
+# end
 
 #== ui ==#
 # params = Dict("hi" => 1)
@@ -190,6 +251,11 @@ function ui(stipple_model)
                             btn("noise ", @click("play_noise = !play_noise"), color = "green", type = "submit", wrap = StippleUI.NO_WRAPPER)
                             btn("output ", @click("play_output = !play_output"), color = "red", type = "submit", wrap = StippleUI.NO_WRAPPER)
             ])
+            Stipple.center([create_audioplayer(stipple_model.soundurl[])])
+            # Stipple.center([create_audioplayer2(stipple_model.ha_pairs[text(:index)])])
+            Stipple.center(cell([
+                plot(@data(:audio_test))
+                ]))
             Stipple.center(cell(class = "st-module", [
                         btn("", @click("like = !like"), content = img(src = stipple_model.likeurl[], style = "height: 50; max-width: 50"), type = "submit", wrap = StippleUI.NO_WRAPPER)
                         btn("", @click("dislike = !dislike"), content = img(src = stipple_model.dislikeurl[], style = "height: 50; max-width: 50"), type = "submit", wrap = StippleUI.NO_WRAPPER)
