@@ -98,11 +98,6 @@ Base.@kwdef mutable struct Model <: ReactiveModel
 
     context::R{String} = "sin"
 
-    play_in::R{Bool}     = false
-    play_speech::R{Bool} = false
-    play_noise::R{Bool}  = false
-    play_output::R{Bool} = false
-
     like::R{Bool}    = false
     dislike::R{Bool} = false
 
@@ -165,12 +160,6 @@ on(_ -> (stipple_model.ha_plotdata[],
 on(pairs -> stipple_model.ha_plotdata[] 
     = update_plots(mod_index(stipple_model.index[], pairs), pairs, agent), stipple_model.ha_pairs)
 
-# play sounds when button is pressed (server-side)
-on(_ -> playsound("input", stipple_model.ha_pairs[], nothing), stipple_model.play_in)
-on(_ -> playsound("speech", stipple_model.ha_pairs[], nothing), stipple_model.play_speech)
-on(_ -> playsound("noise", stipple_model.ha_pairs[], nothing), stipple_model.play_noise)
-on(_ -> playsound("output", stipple_model.ha_pairs[], agent), stipple_model.play_output)
-
 # TODO: Plots should be updated according to the agent's beliefs about the context, not the actual context
 on(_ -> (stipple_model.audio_base_output[], stipple_model.ha_plotdata[]) = update_gains(mod_index(stipple_model.index[], stipple_model.ha_pairs[]), stipple_model.context[], 1.0, agent, stipple_model.ha_pairs[]), stipple_model.like)
 on(_ -> (stipple_model.audio_base_output[], stipple_model.ha_plotdata[]) = update_gains(mod_index(stipple_model.index[], stipple_model.ha_pairs[]), stipple_model.context[], 0.0, agent, stipple_model.ha_pairs[]), stipple_model.dislike)
@@ -225,21 +214,44 @@ function ui(stipple_model)
                     ]) 
                 ])
             ])
-            Stipple.center([btn("input ", @click("play_in = !play_in"), color = "blue", type = "submit", wrap = StippleUI.NO_WRAPPER)
-                            btn("speech ", @click("play_speech = !play_speech"), color = "orange", type = "submit", wrap = StippleUI.NO_WRAPPER)
-                            btn("noise ", @click("play_noise = !play_noise"), color = "green", type = "submit", wrap = StippleUI.NO_WRAPPER)
-                            btn("output ", @click("play_output = !play_output"), color = "red", type = "submit", wrap = StippleUI.NO_WRAPPER)
-            ])
             Stipple.center([
                 cell([
                     """
-                        <audio controls style="width: 200px; height: 60px;" :src="audio_base_input"></audio>
-                        <audio controls style="width: 200px; height: 60px;" :src="audio_base_speech"></audio>
-                        <audio controls style="width: 200px; height: 60px;" :src="audio_base_noise"></audio>
-                        <audio controls style="width: 200px; height: 60px;" :src="audio_base_output"></audio>
+                        <audio id="audio-input" style="width: 200px; height: 60px;" :src="audio_base_input"></audio>
+                        <div style="max-width: 100px; margin: 2px;">
+                            <button onmouseover="this.style.backgroundColor='rgba(33,150,243,0.8)'" onmouseout="this.style.backgroundColor='rgb(33,150,243)'" style="padding: 4px 16px; border: none; border-radius: 3px; background-color: rgb(33,150,243);" onclick="document.getElementById('audio-input').play()">
+                                <span style="line-height: 24px; color: white; font-size: 14px; font-weight: 700">
+                                    INPUT
+                                </span>
+                            </button> 
+                        </div>
+                        <audio id="audio-speech" style="width: 200px; height: 60px;" :src="audio_base_speech"></audio>
+                        <div style="max-width: 100px; margin: 2px;">
+                            <button onmouseover="this.style.backgroundColor='rgba(255,152,0,0.8)'" onmouseout="this.style.backgroundColor='rgb(255,152,0)'" style="padding: 4px 16px; border: none; border-radius: 3px; background-color: rgb(255,152,0);" onclick="document.getElementById('audio-speech').play()">
+                                <span style="line-height: 24px; color: white; font-size: 14px; font-weight: 700">
+                                    SPEECH
+                                </span>
+                            </button> 
+                        </div>
+                        <audio id="audio-noise" style="width: 200px; height: 60px;" :src="audio_base_noise"></audio>
+                        <div style="max-width: 100px; margin: 2px;">
+                            <button onmouseover="this.style.backgroundColor='rgba(76,175,80,0.8)'" onmouseout="this.style.backgroundColor='rgb(76,175,80)'" style="padding: 4px 16px; border: none; border-radius: 3px; background-color: rgb(76,175,80);" onclick="document.getElementById('audio-noise').play()">
+                                <span style="line-height: 24px; color: white; font-size: 14px; font-weight: 700">
+                                    NOISE
+                                </span>
+                            </button> 
+                        </div>
+                        <audio id="audio-output" style="width: 200px; height: 60px;" :src="audio_base_output"></audio>
+                        <div style="max-width: 100px; margin: 2px;">
+                            <button onmouseover="this.style.backgroundColor='rgba(244,67,54,0.8)'" onmouseout="this.style.backgroundColor='rgb(244,67,54)'" style="padding: 4px 16px; border: none; border-radius: 3px; background-color: rgb(244,67,54);" onclick="document.getElementById('audio-output').play()">
+                                <span style="line-height: 24px; color: white; font-size: 14px; font-weight: 700">
+                                    OUTPUT
+                                </span>
+                            </button> 
+                        </div>
                     """
-                ], style = "height: 60px;")
-            ], style = "height: 60px;")
+                ], style = "display: flex; justify-content: center; height: 58px; align-items: center;")
+            ], style = "height: 58px; background-color: white; margin-top: 20px;")
             Stipple.center(cell(class = "st-module", [
                         btn("", @click("like = !like"), content = img(src = stipple_model.likeurl[], style = "height: 50; max-width: 50"), type = "submit", wrap = StippleUI.NO_WRAPPER)
                         btn("", @click("dislike = !dislike"), content = img(src = stipple_model.dislikeurl[], style = "height: 50; max-width: 50"), type = "submit", wrap = StippleUI.NO_WRAPPER)
