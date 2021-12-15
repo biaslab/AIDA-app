@@ -81,32 +81,6 @@ FE_layout = PlotLayout(plot_bgcolor="white",
 
 ha_pairs_init = switch_ha_pairs(true)
 
-# if sound refers to a file (such as the input speech)
-function create_audioplayer(sound)
-    return """
-        <audio controls style="width: 200px; height: 60px;">
-            <source src=$(sound) type="audio/wav">
-            Your browser does not support the audio element.
-        </audio> 
-    """
-end
-function create_audioplayer2(sound)
-    # create IO buffer
-    buf = IOBuffer()
-
-    # write signal to buffer
-    wavwrite(sound["output"], buf; Fs=8000)
-
-    # encode the data stream
-    @compat data = base64encode(buf.data)
-
-    return """
-        <audio controls style="width: 200px;">
-            <source src="data:audio/wav;base64,$data">>
-            Your browser does not support the audio element.
-        </audio> 
-    """
-end
 #== reactive model ==#
 Base.@kwdef mutable struct Model <: ReactiveModel
 
