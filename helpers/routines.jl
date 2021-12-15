@@ -22,9 +22,33 @@ function update_index_routine(model, index, agent)
     segment = model.ha_pairs[][mod_index(model.index[], model.ha_pairs[])]["input"][1:SEGLEN]
     classifier_plotdata = pl_context_fe(context_classifier, segment, real_context)
 
+    # fetch sounds as strings
+    audio_base_input = soundtostring(model.ha_pairs[][mod_index(model.index[], model.ha_pairs[])]["input"])
+    audio_base_speech = soundtostring(model.ha_pairs[][mod_index(model.index[], model.ha_pairs[])]["speech"])
+    audio_base_noise = soundtostring(model.ha_pairs[][mod_index(model.index[], model.ha_pairs[])]["noise"])
+    audio_base_output = soundtostring(model.ha_pairs[][mod_index(model.index[], model.ha_pairs[])]["output"])
+
     # hm_plotdata = pl_agent_hm(agent)
     @show "no change"
-    return classifier_plotdata, ha_plotdata, real_context
+    return classifier_plotdata, ha_plotdata, real_context, audio_base_input, audio_base_speech, audio_base_noise, audio_base_output
+end
+
+function soundtostring(sound)
+
+    # create IO buffer
+    buf = IOBuffer()
+    
+    # write signal to buffer
+    wavwrite(sound, buf; Fs=8000)
+
+    # encode the data stream
+    @compat data = base64encode(buf.data)
+    
+    # create string
+    output = "data:audio/wav;base64,$data"
+
+    # return string
+    return output
 end
 
 function optimize_routine(agent, model)

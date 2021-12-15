@@ -84,7 +84,7 @@ ha_pairs_init = switch_ha_pairs(true)
 # if sound refers to a file (such as the input speech)
 function create_audioplayer(sound)
     return """
-        <audio controls style="width: 200px;">
+        <audio controls style="width: 200px; height: 60px;">
             <source src=$(sound) type="audio/wav">
             Your browser does not support the audio element.
         </audio> 
@@ -93,7 +93,7 @@ end
 function create_audioplayer2(sound)
     # create IO buffer
     buf = IOBuffer()
-        
+
     # write signal to buffer
     wavwrite(sound["output"], buf; Fs=8000)
 
@@ -149,35 +149,26 @@ Base.@kwdef mutable struct Model <: ReactiveModel
     classifier_plotdata::R{Vector{PlotData}} = pl_context_fe(context_classifier, ha_pairs_init[1]["input"][1:SEGLEN], "sin")
     fe_layout::R{PlotLayout} = FE_layout
 
-    audio_test::R{String} = """
-        <audio controls style="width: 200px;">
-            <source src="data:audio/wav;base64,1">>
-            Your browser does not support the audio element.
-        </audio> 
-    """
+    audio_base_input::R{String} = ""
+    audio_base_speech::R{String} = ""
+    audio_base_noise::R{String} = ""
+    audio_base_output::R{String} = ""
 
-end
-
-function audioplayer_output(sound)
-    # create IO buffer
-    buf = IOBuffer()
-    
-    # write signal to buffer
-    wavwrite(sound["output"], buf; Fs=8000)
-
-    # encode the data stream
-    @compat data = base64encode(buf.data)
-
-    return audio(
-        source(src="data:audio/wav;base64,$data")
-    )
 end
 
 # const stipple_model = Stipple.init(Model(), transport = Genie.WebThreads)
 const stipple_model = Stipple.init(Model())
 
-on(i -> (stipple_model.classifier_plotdata[], stipple_model.ha_plotdata[], 
-         stipple_model.context[]) 
+# on(i -> (stipple_model.classifier_plotdata[], stipple_model.ha_plotdata[], 
+#          stipple_model.context[], stipple_model.audio_test[], stipple_model.audio_test2[]) 
+#     = update_index_routine(stipple_model, mod_index(i, stipple_model.ha_pairs[]), agent), stipple_model.index)
+on(i -> (stipple_model.classifier_plotdata[], 
+        stipple_model.ha_plotdata[],           
+        stipple_model.context[], 
+        stipple_model.audio_base_input[],
+        stipple_model.audio_base_speech[],
+        stipple_model.audio_base_noise[],
+        stipple_model.audio_base_output[]) 
     = update_index_routine(stipple_model, mod_index(i, stipple_model.ha_pairs[]), agent), stipple_model.index)
 
 on(_ -> (stipple_model.ha_plotdata[], stipple_model.agent_plotdata[], stipple_model.classifier_plotdata[]) = context_change_routine(stipple_model, agent), stipple_model.context)
@@ -251,11 +242,52 @@ function ui(stipple_model)
                             btn("noise ", @click("play_noise = !play_noise"), color = "green", type = "submit", wrap = StippleUI.NO_WRAPPER)
                             btn("output ", @click("play_output = !play_output"), color = "red", type = "submit", wrap = StippleUI.NO_WRAPPER)
             ])
-            Stipple.center([create_audioplayer(stipple_model.soundurl[])])
+            # Stipple.center([
+            #     # audioplayer(stipple_model.ha_pairs[stipple_model.index]["input"]), 
+            #     # audioplayer(stipple_model.ha_pairs[stipple_model.index]["speech"]),
+            #     # audioplayer(stipple_model.ha_pairs[stipple_model.index]["noise"]),
+            #     # audioplayer(stipple_model.audio_test[])
+            #     #audioplayer2(@bind("audio_test2")),
+            #     #source(src=@bind(:audio_test2))
+            #     # """
+            #     #     <q-img
+            #     #       :src="aido_test2"
+            #     #       spinner-color="white"
+            #     #       style="height: 140px; max-width: 150px"
+            #     #     ></q-img>
+            #     #     """
+            #     ])
             # Stipple.center([create_audioplayer2(stipple_model.ha_pairs[text(:index)])])
-            Stipple.center(cell([
-                plot(@data(:audio_test))
-                ]))
+            # Stipple.center(cell([
+            #     plot(@data(:audio_test))
+            #     ]))
+            Stipple.center([
+                cell([
+                    """
+                        <audio controls style="width: 200px; height: 60px;" :src="audio_base_input">
+                        </audio>
+                    """
+                ], style = "height: 60px;"),
+                cell([
+                    """
+                        <audio controls style="width: 200px; height: 60px;" :src="audio_base_speech">
+                        </audio>
+                    """
+                ], style = "height: 60px;"),
+                cell([
+                    """
+                        <audio controls style="width: 200px; height: 60px;" :src="audio_base_noise">
+                        </audio>
+                    """
+                ], style = "height: 60px;"),
+                cell([
+                    """
+                        <audio controls style="width: 200px; height: 60px;" :src="audio_base_output">
+                        </audio>
+                    """
+                ], style = "height: 60px;")
+
+            ], style = "height: 60px;")
             Stipple.center(cell(class = "st-module", [
                         btn("", @click("like = !like"), content = img(src = stipple_model.likeurl[], style = "height: 50; max-width: 50"), type = "submit", wrap = StippleUI.NO_WRAPPER)
                         btn("", @click("dislike = !dislike"), content = img(src = stipple_model.dislikeurl[], style = "height: 50; max-width: 50"), type = "submit", wrap = StippleUI.NO_WRAPPER)
