@@ -66,7 +66,15 @@ function update_gains(i, context, response, agent, ha_pairs)
     agent.current_gain = reshape(collect(new_X), size(agent.current_gain))
     agent.current_hm = new_grid
     @show new_X
-    update_plots(i, ha_pairs, agent)
+    
+    # update audio
+    speech = ha_pairs[i]["speech"]
+    noise  = ha_pairs[i]["noise"]
+    gains  = agent.current_gain
+    audio_base_output = soundtostring(gains[1]*speech + gains[2]*noise)
+
+    return audio_base_output, update_plots(i, ha_pairs, agent)
+    
 end
 
 
@@ -164,8 +172,8 @@ on(_ -> playsound("noise", stipple_model.ha_pairs[], nothing), stipple_model.pla
 on(_ -> playsound("output", stipple_model.ha_pairs[], agent), stipple_model.play_output)
 
 # TODO: Plots should be updated according to the agent's beliefs about the context, not the actual context
-on(_ -> stipple_model.ha_plotdata[] = update_gains(mod_index(stipple_model.index[], stipple_model.ha_pairs[]), stipple_model.context[], 1.0, agent, stipple_model.ha_pairs[]), stipple_model.like)
-on(_ -> stipple_model.ha_plotdata[] = update_gains(mod_index(stipple_model.index[], stipple_model.ha_pairs[]), stipple_model.context[], 0.0, agent, stipple_model.ha_pairs[]), stipple_model.dislike)
+on(_ -> (stipple_model.audio_base_output[], stipple_model.ha_plotdata[]) = update_gains(mod_index(stipple_model.index[], stipple_model.ha_pairs[]), stipple_model.context[], 1.0, agent, stipple_model.ha_pairs[]), stipple_model.like)
+on(_ -> (stipple_model.audio_base_output[], stipple_model.ha_plotdata[]) = update_gains(mod_index(stipple_model.index[], stipple_model.ha_pairs[]), stipple_model.context[], 0.0, agent, stipple_model.ha_pairs[]), stipple_model.dislike)
 on(_ -> stipple_model.agent_plotdata[] = pl_agent_hm(agent), stipple_model.like)
 on(_ -> stipple_model.agent_plotdata[] = pl_agent_hm(agent), stipple_model.dislike)
 
