@@ -23,10 +23,13 @@ function update_index_routine(model, index, agent)
     classifier_plotdata = pl_context_fe(context_classifier, segment, real_context)
 
     # fetch sounds as strings
+    speech = model.ha_pairs[][mod_index(model.index[], model.ha_pairs[])]["speech"]
+    noise  = model.ha_pairs[][mod_index(model.index[], model.ha_pairs[])]["noise"]
     audio_base_input = soundtostring(model.ha_pairs[][mod_index(model.index[], model.ha_pairs[])]["input"])
-    audio_base_speech = soundtostring(model.ha_pairs[][mod_index(model.index[], model.ha_pairs[])]["speech"])
-    audio_base_noise = soundtostring(model.ha_pairs[][mod_index(model.index[], model.ha_pairs[])]["noise"])
-    audio_base_output = soundtostring(model.ha_pairs[][mod_index(model.index[], model.ha_pairs[])]["output"])
+    audio_base_speech = soundtostring(speech)
+    audio_base_noise = soundtostring(noise)
+    gains  = agent.current_gain
+    audio_base_output = soundtostring(gains[1]*speech + gains[2]*noise)
 
     # hm_plotdata = pl_agent_hm(agent)
     @show "no change"

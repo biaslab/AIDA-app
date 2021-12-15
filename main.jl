@@ -149,10 +149,10 @@ Base.@kwdef mutable struct Model <: ReactiveModel
     classifier_plotdata::R{Vector{PlotData}} = pl_context_fe(context_classifier, ha_pairs_init[1]["input"][1:SEGLEN], "sin")
     fe_layout::R{PlotLayout} = FE_layout
 
-    audio_base_input::R{String} = ""
-    audio_base_speech::R{String} = ""
-    audio_base_noise::R{String} = ""
-    audio_base_output::R{String} = ""
+    audio_base_input::R{String} = soundtostring(ha_pairs_init[1]["input"])
+    audio_base_speech::R{String} = soundtostring(ha_pairs_init[1]["speech"])
+    audio_base_noise::R{String} = soundtostring(ha_pairs_init[1]["noise"])
+    audio_base_output::R{String} = soundtostring(agent.current_gain[1]*ha_pairs_init[1]["speech"] + agent.current_gain[2]*ha_pairs_init[1]["noise"])
 
 end
 
