@@ -159,9 +159,6 @@ end
 # const stipple_model = Stipple.init(Model(), transport = Genie.WebThreads)
 const stipple_model = Stipple.init(Model())
 
-# on(i -> (stipple_model.classifier_plotdata[], stipple_model.ha_plotdata[], 
-#          stipple_model.context[], stipple_model.audio_test[], stipple_model.audio_test2[]) 
-#     = update_index_routine(stipple_model, mod_index(i, stipple_model.ha_pairs[]), agent), stipple_model.index)
 on(i -> (stipple_model.classifier_plotdata[], 
         stipple_model.ha_plotdata[],           
         stipple_model.context[], 
@@ -195,17 +192,6 @@ on(_ -> reset_routine!(stipple_model, agent), stipple_model.reset_env)
 btn_opt(label::AbstractString, value::AbstractString) = "{label: '$label', value: '$value'}"
 btn_opt(labels::Vector, values::Vector) = "[ $(join( btn_opt.(labels, values), ",\n  ")) ]"
 btn_opt(values::Vector) = btn_opt(values, values)
-
-
-# function audioplayer(fieldname::Symbol;
-#         wrap::Function = DEFAULT_WRAPPER,
-#         args...) :: String
-
-#     wrap() do 
-        
-#     end
-#     end
-# end
 
 #== ui ==#
 # params = Dict("hi" => 1)
@@ -242,51 +228,15 @@ function ui(stipple_model)
                             btn("noise ", @click("play_noise = !play_noise"), color = "green", type = "submit", wrap = StippleUI.NO_WRAPPER)
                             btn("output ", @click("play_output = !play_output"), color = "red", type = "submit", wrap = StippleUI.NO_WRAPPER)
             ])
-            # Stipple.center([
-            #     # audioplayer(stipple_model.ha_pairs[stipple_model.index]["input"]), 
-            #     # audioplayer(stipple_model.ha_pairs[stipple_model.index]["speech"]),
-            #     # audioplayer(stipple_model.ha_pairs[stipple_model.index]["noise"]),
-            #     # audioplayer(stipple_model.audio_test[])
-            #     #audioplayer2(@bind("audio_test2")),
-            #     #source(src=@bind(:audio_test2))
-            #     # """
-            #     #     <q-img
-            #     #       :src="aido_test2"
-            #     #       spinner-color="white"
-            #     #       style="height: 140px; max-width: 150px"
-            #     #     ></q-img>
-            #     #     """
-            #     ])
-            # Stipple.center([create_audioplayer2(stipple_model.ha_pairs[text(:index)])])
-            # Stipple.center(cell([
-            #     plot(@data(:audio_test))
-            #     ]))
             Stipple.center([
                 cell([
                     """
-                        <audio controls style="width: 200px; height: 60px;" :src="audio_base_input">
-                        </audio>
-                    """
-                ], style = "height: 60px;"),
-                cell([
-                    """
-                        <audio controls style="width: 200px; height: 60px;" :src="audio_base_speech">
-                        </audio>
-                    """
-                ], style = "height: 60px;"),
-                cell([
-                    """
-                        <audio controls style="width: 200px; height: 60px;" :src="audio_base_noise">
-                        </audio>
-                    """
-                ], style = "height: 60px;"),
-                cell([
-                    """
-                        <audio controls style="width: 200px; height: 60px;" :src="audio_base_output">
-                        </audio>
+                        <audio controls style="width: 200px; height: 60px;" :src="audio_base_input"></audio>
+                        <audio controls style="width: 200px; height: 60px;" :src="audio_base_speech"></audio>
+                        <audio controls style="width: 200px; height: 60px;" :src="audio_base_noise"></audio>
+                        <audio controls style="width: 200px; height: 60px;" :src="audio_base_noise"></audio>
                     """
                 ], style = "height: 60px;")
-
             ], style = "height: 60px;")
             Stipple.center(cell(class = "st-module", [
                         btn("", @click("like = !like"), content = img(src = stipple_model.likeurl[], style = "height: 50; max-width: 50"), type = "submit", wrap = StippleUI.NO_WRAPPER)
