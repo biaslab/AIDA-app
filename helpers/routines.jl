@@ -36,24 +36,6 @@ function update_index_routine(model, index, agent)
     return classifier_plotdata, ha_plotdata, real_context, audio_base_input, audio_base_speech, audio_base_noise, audio_base_output
 end
 
-function soundtostring(sound)
-
-    # create IO buffer
-    buf = IOBuffer()
-    
-    # write signal to buffer
-    wavwrite(sound, buf; Fs=8000)
-
-    # encode the data stream
-    @compat data = base64encode(buf.data)
-    
-    # create string
-    output = "data:audio/wav;base64,$data"
-
-    # return string
-    return output
-end
-
 function optimize_routine(agent, model)
     optimize_hyperparams!(agent, model.context[])
     pl_agent_hm(agent)

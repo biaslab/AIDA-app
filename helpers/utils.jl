@@ -22,3 +22,22 @@ function switch_ha_pairs(synthetic=true)
     end
     return ha_pairs
 end
+
+
+function soundtostring(sound)
+
+    # create IO buffer
+    buf = IOBuffer()
+    
+    # write signal to buffer
+    wavwrite(sound, buf; Fs=8000)
+
+    # encode the data stream
+    @compat data = base64encode(buf.data)
+    
+    # create string
+    output = "data:audio/wav;base64,$data"
+
+    # return string
+    return output
+end

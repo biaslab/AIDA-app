@@ -133,6 +133,7 @@ end
 # const stipple_model = Stipple.init(Model(), transport = Genie.WebThreads)
 const stipple_model = Stipple.init(Model())
 
+# update if the index changes
 on(i -> (stipple_model.classifier_plotdata[], 
         stipple_model.ha_plotdata[],           
         stipple_model.context[], 
@@ -142,10 +143,17 @@ on(i -> (stipple_model.classifier_plotdata[],
         stipple_model.audio_base_output[]) 
     = update_index_routine(stipple_model, mod_index(i, stipple_model.ha_pairs[]), agent), stipple_model.index)
 
-on(_ -> (stipple_model.ha_plotdata[], stipple_model.agent_plotdata[], stipple_model.classifier_plotdata[]) = context_change_routine(stipple_model, agent), stipple_model.context)
+# update if context changes
+on(_ -> (stipple_model.ha_plotdata[], 
+        stipple_model.agent_plotdata[], 
+        stipple_model.classifier_plotdata[]) 
+    = context_change_routine(stipple_model, agent), stipple_model.context)
 
-on(pairs -> stipple_model.ha_plotdata[] = update_plots(mod_index(stipple_model.index[], pairs), pairs, agent), stipple_model.ha_pairs)
+# update if pairs change
+on(pairs -> stipple_model.ha_plotdata[] 
+    = update_plots(mod_index(stipple_model.index[], pairs), pairs, agent), stipple_model.ha_pairs)
 
+# play sounds when button is pressed (server-side)
 on(_ -> playsound("input", stipple_model.ha_pairs[], nothing), stipple_model.play_in)
 on(_ -> playsound("speech", stipple_model.ha_pairs[], nothing), stipple_model.play_speech)
 on(_ -> playsound("noise", stipple_model.ha_pairs[], nothing), stipple_model.play_noise)
@@ -156,10 +164,18 @@ on(_ -> stipple_model.ha_plotdata[] = update_gains(mod_index(stipple_model.index
 on(_ -> stipple_model.ha_plotdata[] = update_gains(mod_index(stipple_model.index[], stipple_model.ha_pairs[]), stipple_model.context[], 0.0, agent, stipple_model.ha_pairs[]), stipple_model.dislike)
 on(_ -> stipple_model.agent_plotdata[] = pl_agent_hm(agent), stipple_model.like)
 on(_ -> stipple_model.agent_plotdata[] = pl_agent_hm(agent), stipple_model.dislike)
-on(_ -> stipple_model.agent_plotdata[] = optimize_routine(agent, stipple_model), stipple_model.optimize)
 
-on(i -> (stipple_model.context[], stipple_model.ha_pairs[], stipple_model.agent_plotdata[]) = btntoggle_routine(stipple_model, i, agent), stipple_model.btntoggle)
+# update on optimize
+on(_ -> stipple_model.agent_plotdata[] 
+    = optimize_routine(agent, stipple_model), stipple_model.optimize)
 
+# update when switching between real and synthetic
+on(i -> (stipple_model.context[], 
+        stipple_model.ha_pairs[], 
+        stipple_model.agent_plotdata[]) 
+    = btntoggle_routine(stipple_model, i, agent), stipple_model.btntoggle)
+
+# update upon reset
 on(_ -> reset_routine!(stipple_model, agent), stipple_model.reset_env)
 
 # creating Toggle
