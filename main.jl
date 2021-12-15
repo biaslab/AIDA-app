@@ -208,7 +208,7 @@ function ui(stipple_model)
                         <audio controls style="width: 200px; height: 60px;" :src="audio_base_input"></audio>
                         <audio controls style="width: 200px; height: 60px;" :src="audio_base_speech"></audio>
                         <audio controls style="width: 200px; height: 60px;" :src="audio_base_noise"></audio>
-                        <audio controls style="width: 200px; height: 60px;" :src="audio_base_noise"></audio>
+                        <audio controls style="width: 200px; height: 60px;" :src="audio_base_output"></audio>
                     """
                 ], style = "height: 60px;")
             ], style = "height: 60px;")
