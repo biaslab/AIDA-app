@@ -60,7 +60,8 @@ function btntoggle_routine(model, toggle, agent)
     agent.current_hm = new_grid
     hm_plotdata = pl_agent_hm(agent)
     @show model.context[]
-    context, ha_pairs, hm_plotdata
+    
+    ha_pairs, context, hm_plotdata
 end
 
 function context_change_routine(model, agent)
@@ -77,5 +78,14 @@ function context_change_routine(model, agent)
 
     ha_plotdata = update_plots(mod_index(model.index[], model.ha_pairs[]), model.ha_pairs[], agent)
 
-    ha_plotdata, hm_plotdata, fe_plotdata
+    # update audio
+    speech = model.ha_pairs[][mod_index(model.index[], model.ha_pairs[])]["speech"]
+    noise  = model.ha_pairs[][mod_index(model.index[], model.ha_pairs[])]["noise"]
+    audio_base_input = soundtostring(model.ha_pairs[][mod_index(model.index[], model.ha_pairs[])]["input"])
+    audio_base_speech = soundtostring(speech)
+    audio_base_noise = soundtostring(noise)
+    gains  = agent.current_gain
+    audio_base_output = soundtostring(gains[1]*speech + gains[2]*noise)
+
+    ha_plotdata, hm_plotdata, fe_plotdata, audio_base_input, audio_base_speech, audio_base_noise, audio_base_output
 end

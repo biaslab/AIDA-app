@@ -146,7 +146,11 @@ on(i -> (stipple_model.classifier_plotdata[],
 # update if context changes
 on(_ -> (stipple_model.ha_plotdata[], 
         stipple_model.agent_plotdata[], 
-        stipple_model.classifier_plotdata[]) 
+        stipple_model.classifier_plotdata[],
+        stipple_model.audio_base_input[],
+        stipple_model.audio_base_speech[],
+        stipple_model.audio_base_noise[],
+        stipple_model.audio_base_output[]) 
     = context_change_routine(stipple_model, agent), stipple_model.context)
 
 # update if pairs change
@@ -170,8 +174,8 @@ on(_ -> stipple_model.agent_plotdata[]
     = optimize_routine(agent, stipple_model), stipple_model.optimize)
 
 # update when switching between real and synthetic
-on(i -> (stipple_model.context[], 
-        stipple_model.ha_pairs[], 
+on(i -> (stipple_model.ha_pairs[], 
+         stipple_model.context[], 
         stipple_model.agent_plotdata[]) 
     = btntoggle_routine(stipple_model, i, agent), stipple_model.btntoggle)
 
