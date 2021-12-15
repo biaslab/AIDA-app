@@ -10,6 +10,15 @@ function reset_routine!(model, agent)
 
     model.agent_plotdata[] = pl_agent_hm(agent)
 
+    # update audio
+    speech = model.ha_pairs[][mod_index(model.index[], model.ha_pairs[])]["speech"]
+    noise  = model.ha_pairs[][mod_index(model.index[], model.ha_pairs[])]["noise"]
+    model.audio_base_input[] = soundtostring(model.ha_pairs[][mod_index(model.index[], model.ha_pairs[])]["input"])
+    model.audio_base_speech[] = soundtostring(speech)
+    model.audio_base_noise[] = soundtostring(noise)
+    gains  = agent.current_gain
+    model.audio_base_output[] = soundtostring(gains[1]*speech + gains[2]*noise)
+
     model.classifier_plotdata[] = pl_context_fe(context_classifier, zeros(SEGLEN), "synthetic")
     @show "check2"
     @show agent
