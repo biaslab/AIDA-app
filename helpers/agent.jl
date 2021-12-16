@@ -28,11 +28,15 @@ end
 function optimize_hyperparams!(agent::EFEAgent, context::String)
     id = findall(isequal(context), CONTEXTS)[1]
     grid, X, y, cur_X, params = agent.grid, agent.cmems[id].dataset["X"], agent.cmems[id].dataset["y"], agent.cmems[id].dataset["X"][:, end], collect(agent.cmems[id].params)
-    res = Optim.optimize(params -> log_evidence(X, y, params), params, show_trace=true)
+    # res = Optim.optimize(params -> AIDA.log_evidence(X, y, params), params, show_trace=true)
+    res = Optim.optimize(params -> AIDA.log_evidence(X, y, params), [0.1,0.1],[1.,1],params,Fminbox(),
+		                                    Optim.Options( iterations=1000, g_tol=1e-4))
     agent.cmems[id].params = tuple(res.minimizer...)
-
     # Compute the EFE grid (meh... TODO:)
-    agent.current_hm = choose_point.(Ref(X), grid, Ref(y), params...)
+    # agent.current_hm = AIDA.choose_point.(Ref(X), grid, Ref(y), params...)
+    σ, l = params
+    epi_grid, inst_grid = get_new_decomp(grid, X, y, σ, l)
+    agent.current_hm = epi_grid + inst_grid
 end
 
 # Grid search over EFE values with inhibition of return, inspired by eye movements
@@ -45,8 +49,9 @@ function get_new_proposal(agent::EFEAgent, context::String)
         return reshape([1.0 2.0], (2, 1)), 1e2*ones(nsteps, nsteps)
     end
     cur_X = agent.cmems[id].dataset["X"][:, end]
-    # Compute the EFE grid
-    value_grid = choose_point.(Ref(X), grid, Ref(y), params...)
+    σ, l = params
+    epi_grid, inst_grid = get_new_decomp(grid, X, y, σ, l)
+    value_grid = epi_grid + inst_grid
     # Ensure that we propose a new trial and not the same one twice in a row
     value_grid[collect(grid) .== [(cur_X[1], cur_X[2])]] .= Inf
 
@@ -67,14 +72,3 @@ function update_dataset!(agent::EFEAgent, context::String, input::Float64)
     end
     agent.cmems[id].dataset["y"] = vcat(agent.cmems[id].dataset["y"], input)
 end
-
-# n_dims = 2
-# n_points = 1
-# n_steps = 20
-
-# agent = EFEAgent(CONTEXTS, n_steps, n_dims, n_points)
-# update_dataset!(agent, "train", 0.0)
-# new_x, _ = get_new_proposal(agent, "train")
-# new_y = 0.0
-
-# update_dataset!(agent, "train", new_x, new_y)
