@@ -1,5 +1,9 @@
 using Optim
 
+N_STEPS = 20
+DEFAULT_GAIN = [1.0 2.0]
+DEFAULT_PARAMS = (0.5, 0.5)
+
 # load helper functions
 mutable struct ContextMemory
     name    :: String
@@ -13,14 +17,14 @@ mutable struct EFEAgent
     current_hm   :: Matrix{Float64}
     grid
 
-    function EFEAgent(names::Vector{String}, nsteps::T, ndims::T, npoints::T) where T<:Int64
-        params = (0.2, 0.5)
+    function EFEAgent(names::Vector{String}, nsteps::T) where T<:Int64
+        params = DEFAULT_PARAMS
         cmems = Vector{ContextMemory}()
         for name in names
             push!(cmems, ContextMemory(name, params, Dict("X" => missing, "y" => [])))
         end
         grid = Iterators.product(LinRange(0, 2, nsteps), LinRange(0, 2, nsteps))
-        new(cmems, reshape([1.0 2.0], (2, 1)), 1e2*ones(nsteps, nsteps), grid)
+        new(cmems, reshape(DEFAULT_GAIN, (2, 1)), 1e2*ones(nsteps, nsteps), grid)
     end
 end
 

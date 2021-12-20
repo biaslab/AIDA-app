@@ -13,8 +13,7 @@ include("helpers/audio.jl")
 
 ## Initialize agent
 include("helpers/agent.jl")
-ndims = 2
-agent = EFEAgent(CONTEXTS, 20, ndims, 1)
+agent = EFEAgent(CONTEXTS, N_STEPS)
 
 ## Initialize context inference
 include("helpers/context.jl")

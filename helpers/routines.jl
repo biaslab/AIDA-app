@@ -1,13 +1,18 @@
 function reset_routine!(model, agent)
-    @show "check1"
     model.context[] = "sin"
     model.ha_pairs[] = ha_pairs_init
     model.btntoggle[] = "synthetic"
-    @show agent
-    agent = EFEAgent(CONTEXTS, 20, ndims, 1)
+    
+    @show "check 1"
+    setfield!(agent, :grid, Iterators.product(LinRange(0, 2, N_STEPS), LinRange(0, 2, N_STEPS)))
+    setfield!(agent, :current_gain, reshape(DEFAULT_GAIN, (2, 1)))
+    setfield!(agent, :current_hm, 1e2*ones(N_STEPS, N_STEPS))
+    setfield!(agent, :cmems, [ContextMemory(name, DEFAULT_PARAMS, Dict("X" => missing, "y" => [])) for name in CONTEXTS])
+
+
+    @show "check2"
     model.index[] = 1
     model.ha_plotdata[] = [pl_input(model.index[], ha_pairs_init), pl_speech(model.index[], ha_pairs_init), pl_noise(model.index[], ha_pairs_init), pl_output(model.index[], ha_pairs_init, agent)]
-
     model.agent_plotdata[] = pl_agent_hm(agent)
 
     # update audio
@@ -20,8 +25,8 @@ function reset_routine!(model, agent)
     model.audio_base_output[] = soundtostring(gains[1]*speech + gains[2]*noise)
 
     model.classifier_plotdata[] = pl_context_fe(context_classifier, zeros(SEGLEN), "synthetic")
-    @show "check2"
-    @show agent
+    @show "check3"
+    return agent
 end
 
 function update_index_routine(model, index, agent)
