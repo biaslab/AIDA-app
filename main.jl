@@ -280,4 +280,4 @@ route("/") do
     ui(stipple_model) |> html
 end
 
-up(async = true)
+up(8000, "0.0.0.0", async = false)
